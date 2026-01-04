@@ -1,49 +1,47 @@
 const video = document.getElementById("video");
 const statusText = document.getElementById("status");
 
-async function startCamera() {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "user" }
-  });
-  video.srcObject = stream;
-}
+const faceDetection = new FaceDetection.FaceDetection({
+  locateFile: (file) =>
+    `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
+});
 
-async function loadModels() {
-  await faceapi.nets.tinyFaceDetector.loadFromUri(
-    "https://justadudewhohacks.github.io/face-api.js/models"
-  );
-}
+faceDetection.setOptions({
+  model: "short",
+  minDetectionConfidence: 0.6,
+});
 
-async function detectFace() {
-  const result = await faceapi.detectSingleFace(
-    video,
-    new faceapi.TinyFaceDetectorOptions()
-  );
-
-  if (result) {
+faceDetection.onResults((results) => {
+  if (results.detections && results.detections.length > 0) {
     statusText.innerText = "✅ Human detected";
     statusText.style.color = "#22c55e";
   } else {
     statusText.innerText = "❌ No human face detected";
     statusText.style.color = "#ef4444";
   }
-}
+});
 
-async function init() {
+async function start() {
   try {
-    statusText.innerText = "Loading face detection model...";
-    await loadModels();
-
-    statusText.innerText = "Starting camera...";
-    await startCamera();
-
-    video.addEventListener("play", () => {
-      setInterval(detectFace, 1000);
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
     });
-  } catch (err) {
-    statusText.innerText = "⚠️ Camera or model loading failed";
-    console.error(err);
+    video.srcObject = stream;
+
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await faceDetection.send({ image: video });
+      },
+      width: 320,
+      height: 240,
+    });
+
+    statusText.innerText = "Camera started";
+    await camera.start();
+  } catch (e) {
+    statusText.innerText = "❌ Camera access failed";
+    console.error(e);
   }
 }
 
-init();
+start();
