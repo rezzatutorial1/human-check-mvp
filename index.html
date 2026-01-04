@@ -1,39 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Human Verification</title>
-
-  <!-- MediaPipe -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-
+  <meta charset="UTF-8">
+  <title>Human Verification Demo</title>
   <style>
     body {
       background: #0f172a;
       color: white;
       font-family: Arial, sans-serif;
       text-align: center;
+      padding: 20px;
     }
+
     video {
       width: 320px;
       border-radius: 12px;
       margin-top: 20px;
     }
-    #status {
+
+    button {
       margin-top: 15px;
+      padding: 10px 20px;
       font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #challengeText {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #0f0;
     }
   </style>
 </head>
-
 <body>
-  <h2>Human Verification</h2>
-  <p>Please allow camera access</p>
 
-  <video id="video" autoplay playsinline></video>
-  <p id="status">Initializing...</p>
+<h2>Human Verification</h2>
+<p>Please allow camera access</p>
 
-  <script src="script.js"></script>
+<video id="video" autoplay playsinline></video>
+<br>
+<button id="verifyBtn">Verify I am human</button>
+
+<div id="challenge" class="hidden">
+  <p id="smileText">😊 Please smile</p>
+  <button id="smileBtn">I smiled</button>
+  
+  <p id="readText">Please read: "I am a real human"</p>
+  <button id="readBtn">I read</button>
+</div>
+
+<p id="result"></p>
+
+<script>
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    document.getElementById("video").srcObject = stream;
+  } catch (e) {
+    document.getElementById("result").innerText = "❌ Camera access denied";
+  }
+}
+
+// مرحله اولیه Verify
+const verifyBtn = document.getElementById("verifyBtn");
+const challengeDiv = document.getElementById("challenge");
+const result = document.getElementById("result");
+
+verifyBtn.addEventListener("click", () => {
+  result.innerText = "✅ Basic human verified";
+  verifyBtn.classList.add("hidden");
+  challengeDiv.classList.remove("hidden");
+});
+
+// مرحله لبخند
+const smileBtn = document.getElementById("smileBtn");
+smileBtn.addEventListener("click", () => {
+  document.getElementById("smileText").innerText = "✅ Smile detected";
+  smileBtn.disabled = true;
+  checkAllPassed();
+});
+
+// مرحله خواندن متن
+const readBtn = document.getElementById("readBtn");
+readBtn.addEventListener("click", () => {
+  document.getElementById("readText").innerText = "✅ Text read";
+  readBtn.disabled = true;
+  checkAllPassed();
+});
+
+// بررسی اینکه هر دو مرحله انجام شده
+function checkAllPassed() {
+  if (document.getElementById("smileBtn").disabled &&
+      document.getElementById("readBtn").disabled) {
+    result.innerText = "🎉 Human Verified Successfully!";
+  }
+}
+
+startCamera();
+</script>
+
 </body>
 </html>
