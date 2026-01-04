@@ -1,36 +1,37 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Human Check MVP</title>
+  <title>Human Verification</title>
 
-  <!-- Face API -->
   <script defer src="https://unpkg.com/face-api.js"></script>
 
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
-      background: #111;
-      color: #fff;
+      background: #0f172a;
+      color: #ffffff;
     }
     video {
       border-radius: 12px;
       margin-top: 20px;
+      width: 320px;
     }
     #status {
-      margin-top: 15px;
-      font-size: 18px;
+      margin-top: 16px;
+      font-size: 16px;
     }
   </style>
 </head>
 
 <body>
   <h2>Human Verification</h2>
+  <p>Allow camera access to continue</p>
 
-  <video id="video" width="400" height="300" autoplay muted></video>
+  <video id="video" autoplay muted playsinline></video>
 
-  <p id="status">در حال آماده‌سازی...</p>
+  <p id="status">Initializing...</p>
 
   <script src="script.js"></script>
 </body>
