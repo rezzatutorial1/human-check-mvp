@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Human Verification Demo</title>
+  <title>Human Verification MVP</title>
   <style>
     body {
       background: #0f172a;
       color: white;
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
@@ -16,25 +16,71 @@
       width: 320px;
       border-radius: 12px;
       margin-top: 20px;
+      border: 3px solid #0f9d58;
     }
 
     button {
       margin-top: 15px;
-      padding: 10px 20px;
+      padding: 12px 25px;
       font-size: 16px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: none;
       cursor: pointer;
+      transition: all 0.2s ease;
+      background: #1e40af;
+      color: white;
     }
 
-    .hidden {
-      display: none;
+    button:hover {
+      transform: scale(1.05);
+      background: #3b82f6;
     }
 
-    #challengeText {
+    .challenge-card {
+      background: #1e293b;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease, background 0.3s ease;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .challenge-card.completed {
+      background: #0f9d58;
+      transform: scale(1.05);
+      color: white;
+    }
+
+    #result {
+      font-size: 20px;
+      margin-top: 20px;
+      font-weight: bold;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
       margin-top: 15px;
-      font-size: 18px;
-      color: #0f0;
+    }
+
+    .step {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #64748b;
+      transition: background 0.3s ease;
+    }
+
+    .step.active {
+      background: #0f9d58;
     }
   </style>
 </head>
@@ -47,10 +93,20 @@
 <br>
 <button id="verifyBtn">Verify I am human</button>
 
-<div id="challenge" class="hidden">
+<!-- Steps Indicator -->
+<div class="steps">
+  <div class="step"></div>
+  <div class="step"></div>
+</div>
+
+<!-- مرحله لبخند -->
+<div id="smileCard" class="challenge-card">
   <p id="smileText">😊 Please smile</p>
   <button id="smileBtn">I smiled</button>
-  
+</div>
+
+<!-- مرحله خواندن متن -->
+<div id="readCard" class="challenge-card">
   <p id="readText">Please read: "I am a real human"</p>
   <button id="readBtn">I read</button>
 </div>
@@ -69,20 +125,31 @@ async function startCamera() {
 
 // مرحله اولیه Verify
 const verifyBtn = document.getElementById("verifyBtn");
-const challengeDiv = document.getElementById("challenge");
+const challengeDivs = document.querySelectorAll('.challenge-card');
 const result = document.getElementById("result");
+
+// Hide challenge cards initially
+challengeDivs.forEach(card => card.style.display = "none");
 
 verifyBtn.addEventListener("click", () => {
   result.innerText = "✅ Basic human verified";
-  verifyBtn.classList.add("hidden");
-  challengeDiv.classList.remove("hidden");
+  verifyBtn.style.display = "none";
+  challengeDivs.forEach(card => card.style.display = "block");
 });
+
+// Steps Indicator
+const steps = document.querySelectorAll('.step');
+function activateStep(index) {
+  if(steps[index]) steps[index].classList.add('active');
+}
 
 // مرحله لبخند
 const smileBtn = document.getElementById("smileBtn");
 smileBtn.addEventListener("click", () => {
   document.getElementById("smileText").innerText = "✅ Smile detected";
   smileBtn.disabled = true;
+  document.getElementById("smileCard").classList.add('completed');
+  activateStep(0);
   checkAllPassed();
 });
 
@@ -91,14 +158,16 @@ const readBtn = document.getElementById("readBtn");
 readBtn.addEventListener("click", () => {
   document.getElementById("readText").innerText = "✅ Text read";
   readBtn.disabled = true;
+  document.getElementById("readCard").classList.add('completed');
+  activateStep(1);
   checkAllPassed();
 });
 
-// بررسی اینکه هر دو مرحله انجام شده
+// بررسی مراحل
 function checkAllPassed() {
-  if (document.getElementById("smileBtn").disabled &&
-      document.getElementById("readBtn").disabled) {
+  if(smileBtn.disabled && readBtn.disabled) {
     result.innerText = "🎉 Human Verified Successfully!";
+    result.style.color = "#0f9d58";
   }
 }
 
