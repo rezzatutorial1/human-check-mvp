@@ -4,22 +4,24 @@
   <meta charset="UTF-8" />
   <title>Human Verification</title>
 
-  <script defer src="https://unpkg.com/face-api.js"></script>
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
   <style>
     body {
+      background: #0f172a;
+      color: white;
       font-family: Arial, sans-serif;
       text-align: center;
-      background: #0f172a;
-      color: #ffffff;
     }
     video {
+      width: 320px;
       border-radius: 12px;
       margin-top: 20px;
-      width: 320px;
     }
     #status {
-      margin-top: 16px;
+      margin-top: 15px;
       font-size: 16px;
     }
   </style>
@@ -27,10 +29,9 @@
 
 <body>
   <h2>Human Verification</h2>
-  <p>Allow camera access to continue</p>
+  <p>Please allow camera access</p>
 
-  <video id="video" autoplay muted playsinline></video>
-
+  <video id="video" autoplay playsinline></video>
   <p id="status">Initializing...</p>
 
   <script src="script.js"></script>
