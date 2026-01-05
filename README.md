@@ -1,5 +1,12 @@
 # Human Verification MVP
 
+This repository contains a proof-of-concept implementation of a proprietary
+human verification interaction model.
+
+The concept, interaction flow, and UX logic are original and created by Rezza.
+Shared for demonstration and evaluation purposes only.
+
+
 A **lightweight, privacy-first human verification system** designed to replace traditional CAPTCHAs with a fast, natural, and secure face-based interaction.
 
 Live Demo: [GitHub Pages](https://rezzatutorial1.github.io/human-check-mvp/)
