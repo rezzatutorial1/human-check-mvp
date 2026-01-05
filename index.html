@@ -1,1 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Human Verification</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #111318, #050607);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ===== CARD ===== */
+.card {
+  width: 96%; /* بزرگتر از قبل */
+  max-width: 500px;
+  background: linear-gradient(180deg, #f8fafc, #eef2f6);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 35px 80px rgba(0,0,0,0.45);
+  text-align: center;
+}
+
+/* ===== SECURITY MESSAGE ===== */
+.security-banner {
+  background: linear-gradient(90deg, #f1f3f5, #ffffff);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid #e5e7eb;
+}
+
+.security-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+/* ===== SINGLE SHIELD EMOJI ===== */
+.emoji {
+  font-size: 36px;
+  display: inline-block;
+  animation: pulse 2.6s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+
+/* ===== TITLE ===== */
+.trust-line {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+  color: #111827;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 8px 0 18px;
+}
+
+/* ===== VIDEO ===== */
+video {
+  width: 100%;
+  height: 260px;
+  border-radius: 16px;
+  background: #000;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+  margin-bottom: 18px;
+}
+
+/* ===== CHALLENGE ===== */
+.challenge {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid #dcdfe3;
+}
+
+#instructionText {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+#question {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+#timer {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+#status {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.neutral { color: #4b5563; }
+.success { color: #16a34a; }
+.error   { color: #dc2626; }
+
+#retryBtn {
+  display: none;
+  margin-top: 14px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: none;
+  background: #111827;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+}
+#retryBtn:hover {
+  background: #000000;
+}
+
+.checks {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #374151;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <!-- SECURITY MESSAGE -->
+  <div class="security-banner">
+    <div class="security-text">
+      Your face & data stay private. Nothing is stored or shared.
+    </div>
+    <div class="emoji">🛡️</div>
+  </div>
+
+  <div class="trust-line">Secure access. Real humans only.</div>
+  <h1>Human Verification</h1>
+  <div class="subtitle">Fast · Private · Human-friendly</div>
+
+  <video id="video" autoplay muted playsinline></video>
+
+  <div class="challenge">
+    <div id="instructionText">Please answer correctly</div> <!-- اضافه شده -->
+    <div id="question">Loading…</div>
+    <div id="timer">Time left: 10s</div>
+    <div id="status" class="neutral">Initializing…</div>
+    <button id="retryBtn">Try again</button>
+  </div>
+
+  <div class="checks">
+    <div>📷 Camera active</div>
+    <div id="voiceCheck">🎙 Voice pending</div>
+  </div>
+
+</div>
+
+<script>
+const video = document.getElementById("video");
+const statusEl = document.getElementById("status");
+const timerEl = document.getElementById("timer");
+const questionEl = document.getElementById("question");
+const retryBtn = document.getElementById("retryBtn");
+const instructionText = document.getElementById("instructionText");
+const voiceCheck = document.getElementById("voiceCheck");
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => video.srcObject = stream);
+
+let num1, num2, operator, correctAnswer;
+let attempts = 0;
+let timeLeft = 10;
+let timer;
+
+// تولید سوال ریاضی
+function generateQuestion() {
+  num1 = Math.floor(Math.random() * 90) + 10; // دو رقمی
+  num2 = Math.floor(Math.random() * 8) + 1;  // تک رقمی
+  operator = Math.random() > 0.5 ? "+" : "-";
+
+  if (operator === "-" && num2 > num1) operator = "+";
+
+  correctAnswer = operator === "+" ? num1 + num2 : num1 - num2;
+  questionEl.textContent = `${num1} ${operator} ${num2} = ?`;
+}
+
+// شبیه سازی تشخیص صدا
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.lang = "en-US";
+
+function startTimer() {
+  timer = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = `Time left: ${timeLeft}s`;
+    if (timeLeft <= 0) fail("Time expired");
+  }, 1000);
+}
+
+function fail(msg) {
+  clearInterval(timer);
+  attempts++;
+  statusEl.textContent = msg;
+  statusEl.className = "error";
+  recognition.stop();
+
+  if (attempts >= 2) retryBtn.style.display = "inline-block";
+  else setTimeout(startChallenge, 1200);
+}
+
+recognition.onresult = e => {
+  clearInterval(timer);
+  const spoken = e.results[0][0].transcript.replace(/\s/g, "");
+  if (spoken.includes(correctAnswer.toString())) {
+    statusEl.textContent = "Verified ✓";
+    statusEl.className = "success";
+    voiceCheck.textContent = "🎙 Voice verified";
+  } else {
+    fail("Incorrect answer");
+  }
+};
+
+function startChallenge() {
+  retryBtn.style.display = "none";
+  timeLeft = 10;
+  timerEl.textContent = "Time left: 10s";
+  statusEl.textContent = "Listening…";
+  statusEl.className = "neutral";
+  generateQuestion();
+  recognition.start();
+  startTimer();
+}
+
+retryBtn.onclick = () => {
+  attempts = 0;
+  startChallenge();
+};
+
+startChallenge();
+</script>
+
+</body>
+</html>
