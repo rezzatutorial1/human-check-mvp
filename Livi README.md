@@ -84,3 +84,4 @@ Contact
 For collaboration, licensing, or demonstration:
 Email:imrezzajamali@gmail.com
 GitHub: rezzatutorial1
+The idea, security logic, and the entire project in any case belong to Reza Jamali
